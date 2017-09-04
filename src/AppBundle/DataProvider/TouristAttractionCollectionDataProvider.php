@@ -61,7 +61,7 @@ final class TouristAttractionCollectionDataProvider implements CollectionDataPro
                 // dump($searchQuery[$propertyKey]);
             }
         }
-
+        $attr = array();
         // dump($searchQuery);
         $url = 'https://api.sandbox.amadeus.com/v1.2/points-of-interest/yapq-search-circle';
         // $url = 'https://api.sandbox.amadeus.com/v1.2/points-of-interest/yapq-search-text';
@@ -87,7 +87,7 @@ final class TouristAttractionCollectionDataProvider implements CollectionDataPro
         }
         //40.640063, 22.944419 Thessaloniki
         // $quert['category'] = 'Museum';//Landmark,Church
-        $query['apikey'] = 'ZRjgUbT6jlJZlEvY86DrhyOrXAGzvANA';
+        $query['apikey'] = 'ZRjgUbT6jlJZlEvY86DrhyOrXAGzvANA'; //pIAhozpIaIyfYD5YbwQdlRAIyNh3yKGy
         // $query['city_name'] = 'Athens';
         $query['number_of_images'] = 1;
         $query['number_of_results'] = 20;
@@ -95,22 +95,34 @@ final class TouristAttractionCollectionDataProvider implements CollectionDataPro
         // $query['longitude'] = 23.7278;
         $response = Unirest\Request::get($url,$headers,$query);
         // dump($response);
-        $data = $response->body->points_of_interest;
-        $attr = array();
-        foreach ($data as $key => $value) {
-          $attr[$key] = new TouristAttraction();
-          $attr[$key]->setId($key);
-          $attr[$key]->setName($value->title);
-          $attr[$key]->setDescription($value->details->short_description);
-          $attr[$key]->setUrl($value->details->wiki_page_link);
-          $attr[$key]->setHasMap($value->location->google_maps_link);
-          $geo = new GeoCoordinates();
-          $geo->setId($key);
-          $geo->setLatitude($value->location->latitude);
-          $geo->setLongitude($value->location->longitude);
-          $attr[$key]->setGeo($geo);
-          $attr[$key]->setImage($value->main_image);
-       }
-        return [$attr];
+        if ($response->body->status == 429) {
+          // $em = $this->managerRegistry->getManagerForClass('AppBundle\Entity\TouristAttraction');
+          $em = $this->managerRegistry->getRepository('AppBundle\Entity\TouristAttraction');
+          // dump($em);
+        // $emOrm = ObjectManager::getDoctrine();
+          // $em->findAll();
+        // $em->flush();
+          // $repository = $this->$managerRegistry->getRepository('AppBundle:TouristAttraction');
+          $attr = $em->findAll();
+          // dump($attr);
+          return $attr;
+        } else {
+          $data = $response->body->points_of_interest;
+          foreach ($data as $key => $value) {
+            $attr[$key] = new TouristAttraction();
+            $attr[$key]->setId($key);
+            $attr[$key]->setName($value->title);
+            $attr[$key]->setDescription($value->details->short_description);
+            $attr[$key]->setUrl($value->details->wiki_page_link);
+            $attr[$key]->setHasMap($value->location->google_maps_link);
+            $geo = new GeoCoordinates();
+            $geo->setId($key);
+            $geo->setLatitude($value->location->latitude);
+            $geo->setLongitude($value->location->longitude);
+            $attr[$key]->setGeo($geo);
+            $attr[$key]->setImage($value->main_image);
+         }
+          return $attr;
+      }
     }
 }
