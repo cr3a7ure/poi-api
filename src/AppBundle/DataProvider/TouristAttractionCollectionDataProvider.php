@@ -93,7 +93,14 @@ final class TouristAttractionCollectionDataProvider implements CollectionDataPro
         $query['number_of_results'] = 20;
         // $query['latitude'] = 37.9703;
         // $query['longitude'] = 23.7278;
-        $response = Unirest\Request::get($url,$headers,$query);
+        if (true) {
+          $em = $this->managerRegistry->getRepository('AppBundle\Entity\TouristAttraction');
+          $attr = $em->findAll();
+          // dump($attr);
+          return $attr;
+        } else {
+          $response = Unirest\Request::get($url,$headers,$query);
+        }
         // dump($response);
         if ($response->body->status == 429) {
           // $em = $this->managerRegistry->getManagerForClass('AppBundle\Entity\TouristAttraction');
