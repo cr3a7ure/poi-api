@@ -21,11 +21,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                     "denormalization_context"={"groups"={"writeAttraction"}}
  *             },
  *             collectionOperations={
- *                 "get"={"method"="GET", "hydra_context"={"@type"="schema:searchAction",
- *                                                         "target"="/tourist_attractions",
- *                                                         "query"={"@type"="vocab:#GeoCoordinates"},
- *                                                         "result"="vocab:#TouristAttraction",
- *                                                         "object"="vocab:#TouristAttraction"
+ *                 "get"={"method"="GET", "hydra_context"={"@type"="schema:SearchAction",
+ *                                                         "schema:target"="/tourist_attractions",
+ *                                                         "schema:query"={"@type"="vocab:#GeoCoordinates"},
+ *                                                         "schema:result"="vocab:#TouristAttraction",
+ *                                                         "schema:object"="vocab:#TouristAttraction"
  *                                         }},
  *                 "post"={"method"="POST"}
  *             }
