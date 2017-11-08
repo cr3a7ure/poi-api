@@ -21,13 +21,14 @@ final class TouristAttractionCollectionDataProvider implements CollectionDataPro
 {
   protected $requestStack;
   protected $managerRegistry;
+  protected $amadeusKey;
   // protected $objectManager;
 
-  public function __construct(RequestStack $requestStack,ManagerRegistry $managerRegistry)
+  public function __construct(RequestStack $requestStack,ManagerRegistry $managerRegistry, $amadeusKey)
     {
         $this->requestStack = $requestStack;
         $this->managerRegistry = $managerRegistry;
-        // $this->objectManager = $objectManager;
+        $this->amadeusKey = $amadeusKey;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null)
@@ -56,13 +57,10 @@ final class TouristAttractionCollectionDataProvider implements CollectionDataPro
             } else {
                 $chainPropsKey = explode("_", $key);
                 $propertyKey = end($chainPropsKey);
-                // dump($propertyKey);
                 $searchQuery[$propertyKey] = $value;
-                // dump($searchQuery[$propertyKey]);
             }
         }
         $attr = array();
-        // dump($searchQuery);
         $url = 'https://api.sandbox.amadeus.com/v1.2/points-of-interest/yapq-search-circle';
         // $url = 'https://api.sandbox.amadeus.com/v1.2/points-of-interest/yapq-search-text';
         $headers = array('Accept' => 'application/json');
@@ -87,13 +85,10 @@ final class TouristAttractionCollectionDataProvider implements CollectionDataPro
         }
         //40.640063, 22.944419 Thessaloniki
         // $quert['category'] = 'Museum';//Landmark,Church
-        $query['apikey'] = 'ZRjgUbT6jlJZlEvY86DrhyOrXAGzvANA'; //pIAhozpIaIyfYD5YbwQdlRAIyNh3yKGy
-        // $query['city_name'] = 'Athens';
+        $query['apikey'] = $this->amadeusKey;
         $query['number_of_images'] = 1;
         $query['number_of_results'] = 20;
-        // $query['latitude'] = 37.9703;
-        // $query['longitude'] = 23.7278;
-        if (true) {
+        if (false) {
           $em = $this->managerRegistry->getRepository('AppBundle\Entity\TouristAttraction');
           $attr = $em->findAll();
           // dump($attr);
@@ -101,17 +96,9 @@ final class TouristAttractionCollectionDataProvider implements CollectionDataPro
         } else {
           $response = Unirest\Request::get($url,$headers,$query);
         }
-        // dump($response);
-        if ($response->body->status == 429) {
-          // $em = $this->managerRegistry->getManagerForClass('AppBundle\Entity\TouristAttraction');
+        if ($response->code !== 200) {
           $em = $this->managerRegistry->getRepository('AppBundle\Entity\TouristAttraction');
-          // dump($em);
-        // $emOrm = ObjectManager::getDoctrine();
-          // $em->findAll();
-        // $em->flush();
-          // $repository = $this->$managerRegistry->getRepository('AppBundle:TouristAttraction');
           $attr = $em->findAll();
-          // dump($attr);
           return $attr;
         } else {
           $data = $response->body->points_of_interest;
